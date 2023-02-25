@@ -1,0 +1,6 @@
+sql:
+  engine: sqlite3
+  database: subscriber.sqlite
+
+log:
+  log_dir: logs
