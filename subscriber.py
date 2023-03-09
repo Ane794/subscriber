@@ -1,6 +1,6 @@
 import importlib
 
-from utils import LoginSqlUtil
+from .utils import LoginSqlUtil
 
 
 class Subscriber:

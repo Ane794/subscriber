@@ -1,6 +1,6 @@
 import aiohttp
 
-from models import Work
+from ...models import Work
 from .request_util import RequestUtil, RequestAsyncUtil
 
 

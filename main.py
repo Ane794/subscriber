@@ -2,7 +2,7 @@ import argparse
 
 from ruamel.yaml import YAML, CommentedMap, CommentedSeq
 
-from subscriber import Subscriber
+from . import Subscriber
 
 
 def parse_yaml(obj):
