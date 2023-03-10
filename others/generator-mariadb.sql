@@ -12,7 +12,7 @@ create table account
         primary key,
     name       longtext not null comment '账号名称',
     login_key  longtext not null comment '登录密钥',
-    nickname   longtext default `name` comment '账号昵称',
+    nickname   longtext comment '账号昵称',
     options    json comment '账号选项',
     website_id int      not null comment '网站 ID',
     constraint account_website_id_fk

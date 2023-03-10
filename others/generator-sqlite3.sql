@@ -14,7 +14,7 @@ create table account
             primary key autoincrement,
     name       text    not null,
     login_key  text    not null,
-    nickname   text default name,
+    nickname   text,
     options    text,
     website_id integer not null
         constraint account_website_id_fk

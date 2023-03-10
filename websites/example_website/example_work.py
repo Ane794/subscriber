@@ -11,7 +11,7 @@ class Job(JobUtil):
         log_kwargs.update(
             titles=[
                 work.account.website.name,
-                work.account.nickname,
+                work.account.name,
                 work.name,
             ],
         )

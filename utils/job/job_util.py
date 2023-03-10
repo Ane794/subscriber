@@ -29,8 +29,12 @@ class JobUtil(RequestUtil):
         for _ in _parsed_kwargs:
             request_kwargs.setdefault(_, _parsed_kwargs.get(_))
 
-        log_kwargs.setdefault('debug', False)
-        log_kwargs.setdefault('titles', [self._website.name, self._account.name, work.name])
+        log_kwargs.setdefault('debug', self._website.options.get('debug', False))
+        log_kwargs.setdefault('titles', [
+            self._website.name,
+            self._account.nickname if self._account.nickname else self._account.name,
+            work.name,
+        ])
 
         super().__init__(
             log_kwargs=log_kwargs,
