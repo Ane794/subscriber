@@ -5,7 +5,7 @@
 # 依赖
 
 - Python 3
-- [requirements.txt] 或 [requirements-module.txt] (不使用 [main.py] 时) 所列出的 Python 3 模块
+- [requirements.txt] 所列出的 Python 3 模块
 
 # 运行
 
@@ -112,7 +112,6 @@ _账号选项_ 描述了一个网站的每个账号不同的参数.
 [others/config.yml]: others/config.yml
 [others/generator-*.sql]: others/
 [requirements.txt]: requirements.txt
-[requirements-module.txt]: requirements-module.txt
 [subscriber.sqlite]: subscriber.sqlite
 [`example_website`]: websites/example_website/
 [`example_work`]: websites/example_website/example_work.py
