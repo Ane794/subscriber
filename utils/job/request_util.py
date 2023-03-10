@@ -38,7 +38,7 @@ class RequestUtil(LogUtil):
         """ 上次执行是否失败. """
         return self.failed
 
-    def _start(self, job, title: str = '请求'):
+    def _start(self, job, title: str = '请求') -> (int, object):
         """ 调用方法 self._run() 并捕获异常和返回值; 失败时自动重试. """
         try:
             result = self._run(job)
@@ -50,7 +50,7 @@ class RequestUtil(LogUtil):
         finally:
             self._end()
 
-    def _run(self, job):
+    def _run(self, job) -> (int, object):
         """ 准备运行时的环境 (如新建会话等); 执行作业 job().
 
         :param job: 待执行的作业
@@ -118,7 +118,7 @@ class RequestAsyncUtil(RequestUtil):
         self._loop = asyncio.get_event_loop()
         self._session: aiohttp.ClientSession
 
-    def _run(self, job):
+    def _run(self, job) -> (int, object):
         self._session = aiohttp.ClientSession()
         return self._loop.run_until_complete(job())
 

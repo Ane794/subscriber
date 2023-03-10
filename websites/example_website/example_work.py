@@ -22,7 +22,7 @@ class Job(JobUtil):
             **kwargs,
         )
 
-    def _job(self):
+    def _job(self) -> (int, str):
         """ 任务主要流程. """
 
         _res = self._get(Job._BASE_URL)

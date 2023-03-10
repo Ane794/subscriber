@@ -37,11 +37,11 @@ class JobUtil(RequestUtil):
             **request_kwargs,
         )
 
-    def start(self, title: str = '作业'):
+    def start(self, title: str = '作业') -> (int, object):
         """ 执行作业. """
         return self._start(self._job, title)
 
-    def _start(self, job, title=''):
+    def _start(self, job, title='') -> (int, object):
         return super()._start(job, title)
 
     def _job(self) -> (int, object):
@@ -93,11 +93,11 @@ class JobUtil(RequestUtil):
 class JobAsyncUtil(JobUtil, RequestAsyncUtil):
     """ JobUtil 的异步版本 """
 
-    def _run(self, job):
+    def _run(self, job) -> (int, object):
         self._session = aiohttp.ClientSession(cookies=self._account.login_key)
         return self._loop.run_until_complete(job())
 
-    async def _job(self):
+    async def _job(self) -> (int, object):
         pass
 
     def _end(self):
