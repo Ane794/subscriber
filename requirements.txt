@@ -1,6 +1,0 @@
-aiohttp
-requests
-
-# main
-argparse
-ruamel.yaml
