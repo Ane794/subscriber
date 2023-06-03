@@ -21,7 +21,7 @@ python -m main -h
 
 ## 数据库配置
 
-1. 在 [others/config.yml] 中的 `sql` 字段配置连接的数据库与账号, 密码等;  
+1. 在 [config.yml] 中的 `sql` 字段配置连接的数据库与账号, 密码等;  
    默认为目录下的 [subscriber.sqlite].
 
 2. 利用文件 [others/generator-*.sql] 依次创建数据表 `website`, `account` 和 `work`.
@@ -33,7 +33,7 @@ python -m main -h
 | 字段名  | 数据类型 | 举例                         | 描述                      |
 | ------- | -------- | ---------------------------- | ------------------------- |
 | id      | int(11)  | `0`                          | 网站 ID                   |
-| name    | longtext | `Ane794`                     | 网站名称                  |
+| name    | longtext | `AWebsiteName`               | 网站名称                  |
 | options | json     | `{"选项1": 值, "选项2": 值}` | 网站选项; 详见 [网站选项] |
 
 #### Account (账号)
@@ -41,7 +41,7 @@ python -m main -h
 | 字段名     | 数据类型    | 举例                         | 描述                                 |
 | ---------- | ----------- | ---------------------------- | ------------------------------------ |
 | id         | int(11)     | `0`                          | 账号 ID                              |
-| name       | varchar(21) | `Ane794`                     | 账号名称                             |
+| name       | varchar(21) | `MyUserName`                 | 账号名称                             |
 | login_key  | longtext    | `MyPassword`                 | 登录密钥; 详见 [登录方式]            |
 | nick_name  | longtext    | `My Nickname`                | 账号昵称; 用于显示在日志或其他 UI 上 |
 | options    | json        | `{"选项1": 值, "选项2": 值}` | 账号选项; 详见 [账号选项]            |
@@ -52,7 +52,7 @@ python -m main -h
 | 字段名     | 数据类型    | 举例                         | 描述                      |
 | ---------- | ----------- | ---------------------------- | ------------------------- |
 | id         | int(11)     | `1`                          | 任务 ID                   |
-| name       | varchar(21) | `Ane794`                     | 任务名称                  |
+| name       | varchar(21) | `AWorkName`                  | 任务名称                  |
 | options    | json        | `{"选项1": 值, "选项2": 值}` | 任务选项; 详见 [任务选项] |
 | account_id | int(11)     | `1`                          | 账号 ID                   |
 
@@ -68,7 +68,7 @@ python -m main -h
 
 例如:
 
-- 当 _登录方式_ 是 "账号名, 密码" 时, `login_key` 是账号的密码;
+- 当 _登录方式_ 是 `账号名, 密码` 时, `login_key` 是账号的密码;
 - 当 _登录方式_ 是 `Cookies: {uuid, sid}` 时, `login_key` 是账号的 Cookies, 且需要 `uuid`, `sid` 两个字段,
   形如 `{"uuid": "...", "sid": "..."}`.
 
@@ -109,7 +109,7 @@ _账号选项_ 描述了一个网站的每个账号不同的参数.
 [任务选项]: #任务选项
 [logs]: logs/
 [main.py]: main.py
-[others/config.yml]: others/config.yml
+[config.yml]: config.yml
 [others/generator-*.sql]: others/
 [requirements]: requirements
 [subscriber.sqlite]: subscriber.sqlite

@@ -4,7 +4,8 @@ create table website
         constraint website_pk
             primary key autoincrement,
     name    text    not null,
-    options text
+    options text,
+    comment text
 );
 
 create table account
@@ -18,7 +19,8 @@ create table account
     options    text,
     website_id integer not null
         constraint account_website_id_fk
-            references website
+            references website,
+    comment text
 );
 
 create table work
@@ -30,5 +32,6 @@ create table work
     options    text,
     account_id integer not null
         constraint work_account_id_fk
-            references account
+            references account,
+    comment text
 );
