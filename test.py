@@ -2,7 +2,7 @@ import argparse
 
 from ruamel import yaml
 
-from .subscriber import Subscriber
+from subscriber import Subscriber
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='Subscriber')

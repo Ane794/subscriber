@@ -1,5 +1,4 @@
-from ...models import Work
-from ...utils import JobUtil
+from subscriber import Work, JobUtil
 
 
 class Job(JobUtil):

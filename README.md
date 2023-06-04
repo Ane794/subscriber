@@ -108,7 +108,7 @@ _账号选项_ 描述了一个网站的每个账号不同的参数.
 [账号选项]: #账号选项
 [任务选项]: #任务选项
 [logs]: logs/
-[main.py]: main.py
+[main.py]: test.py
 [config.yml]: config.yml
 [others/generator-*.sql]: others/
 [requirements]: requirements
