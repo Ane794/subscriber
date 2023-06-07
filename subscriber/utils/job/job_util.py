@@ -41,18 +41,18 @@ class JobUtil(RequestUtil):
             **request_kwargs,
         )
 
-    def start(self, title: str = '作业') -> (int, object):
+    def start(self, title: str = '作业') -> tuple[int, object]:
         """ 执行作业. """
         return self._start(self._job, title)
 
-    def _start(self, job, title='') -> (int, object):
+    def _start(self, job, title='') -> tuple[int, object]:
         return super()._start(job, title)
 
-    def _job(self) -> (int, object):
+    def _job(self) -> tuple[int, object]:
         """ 作业. """
         pass
 
-    def _parse_kwargs(self) -> dict:
+    def _parse_kwargs(self) -> dict[str]:
         """ 从网站实例, 账号实例和任务实例中获取 Requests 参数.
 
         :return: Requests 参数
@@ -97,11 +97,11 @@ class JobUtil(RequestUtil):
 class JobAsyncUtil(JobUtil, RequestAsyncUtil):
     """ JobUtil 的异步版本 """
 
-    def _run(self, job) -> (int, object):
+    def _run(self, job) -> tuple[int, object]:
         self._session = aiohttp.ClientSession(cookies=self._account.login_key)
         return self._loop.run_until_complete(job())
 
-    async def _job(self) -> (int, object):
+    async def _job(self) -> tuple[int, object]:
         pass
 
     def _end(self):

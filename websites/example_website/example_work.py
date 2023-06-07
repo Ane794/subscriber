@@ -21,7 +21,7 @@ class Job(JobUtil):
             **kwargs,
         )
 
-    def _job(self) -> (int, str):
+    def _job(self) -> tuple[int, str]:
         """ 任务主要流程. """
 
         _res = self._get(Job._BASE_URL)

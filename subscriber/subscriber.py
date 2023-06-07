@@ -30,7 +30,7 @@ class Subscriber:
         _sql_conf = self._conf.get('sql', {})
         self._login_util = LoginSqlUtil(**_sql_conf)
 
-    def start(self, websites_package, work_id: int):
+    def start(self, websites_package, work_id: int) -> tuple[int, object]:
         _work = self._login_util.fetch_work(work_id)
 
         _work_module = importlib.import_module(f'.{_work.account.website.name}.{_work.name}', websites_package)
