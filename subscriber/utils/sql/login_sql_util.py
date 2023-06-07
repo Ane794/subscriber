@@ -1,5 +1,5 @@
-from models import *
 from .sql_util import SqlUtil
+from ...models import *
 
 
 class LoginSqlUtil(SqlUtil):

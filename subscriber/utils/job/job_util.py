@@ -1,7 +1,7 @@
 import aiohttp
 
-from models import Work
 from .request_util import RequestUtil, RequestAsyncUtil
+from ...models import Work
 
 
 class JobUtil(RequestUtil):

@@ -1,6 +1,6 @@
 import importlib
 
-from utils.sql.login_sql_util import LoginSqlUtil
+from .utils.sql import LoginSqlUtil
 
 
 class Subscriber:
@@ -30,10 +30,10 @@ class Subscriber:
         _sql_conf = self._conf.get('sql', {})
         self._login_util = LoginSqlUtil(**_sql_conf)
 
-    def start(self, work_id: int):
+    def start(self, websites_package, work_id: int):
         _work = self._login_util.fetch_work(work_id)
 
-        _work_module = importlib.import_module(f'websites.{_work.account.website.name}.{_work.name}')
+        _work_module = importlib.import_module(f'.{_work.account.website.name}.{_work.name}', websites_package)
         """ 任务模块; 根据执行方法和网站名定位到 """
         return _work_module.Job(
             _work,

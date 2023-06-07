@@ -2,20 +2,99 @@
 
 一个使用存储于数据库中的参数登录网站并完成自定义任务的模块.
 
+- [Subscriber](#subscriber)
+- [依赖](#依赖)
+- [安装](#安装)
+- [使用](#使用)
+  - [1. 添加自定义任务](#1-添加自定义任务)
+  - [2. 调用 `Subscriber`](#2-调用-subscriber)
+- [数据](#数据)
+  - [数据库配置](#数据库配置)
+  - [数据模型](#数据模型)
+      - [Website (网站)](#website-网站)
+      - [Account (账号)](#account-账号)
+      - [Work (任务)](#work-任务)
+  - [网站](#网站)
+    - [简介](#简介)
+      - [登录方式](#登录方式)
+      - [网站选项](#网站选项)
+      - [账号选项](#账号选项)
+      - [任务选项](#任务选项)
+    - [通用](#通用)
+      - [网站选项](#网站选项-1)
+
 # 依赖
 
 - Python 3
-- [requirements] 所列出的 Python 3 模块
+  - aiohttp
+  - requests
 
-# 运行
+# 安装
 
-使用以下命令获取帮助:
-
-```shell
-python -m main -h
+```sh
+pip install git+https://github.com/Ane794/subscriber.git
 ```
 
-日志默认存储在目录 [logs] 下.
+# 使用
+
+## 1. 添加自定义任务
+
+本模块的一部分目录结构如下:
+
+```yml
+- subscriber  # 本项目或调用本项目的项目的根目录
+  - websites/  # 自定义脚本的根目录; 名称可自定义, 在本文档中记作 `website_module`
+    - example_website/  # 网站的名称
+      - example_work.py  # 自定义任务的脚本
+```
+
+当用户需要添加一个自定义任务时, 需要如下步骤:
+
+1. 添加一个新网站:
+   1. 更新数据库的表格 `website`, 为新网站添加一条记录 (详见 [数据模型 - 网站](#website-网站);
+   2. 在 [`website_module`] (自定义脚本根目录) 为网站新建一个目录, 名称与表格 `website` 的字段 `name` 保持一致;
+2. 编写一个任务脚本:
+   在网站的目录下为任务新建一个脚本 `<任务名>.py`, 继承 [`JobUtil`] 或 [`JobAsyncUtil`] 定义一个类 `Job`, 重写 `_job` 方法, 在其中编写该任务的主要流程;
+3. 添加用户:
+   更新数据表的表格 `account`, 为该网站的新用户添加记录 (详见 [数据模型 - 账号](#account-账号));
+4. 添加任务:
+   更新数据表的表格 `work`, 为 _使用哪个用户执行哪个任务_ 添加记录 (详见 [数据模型 - 任务](#work-任务)), 字段 `name` 与任务脚本名称 (不包含后缀) 保持一致.
+
+## 2. 调用 `Subscriber`
+
+```py
+from subscriber import Subscriber
+
+# 准备实例化 `Subscriber` 所需的参数, 包含了数据库连接配置, 日志存放目录等.
+_config = {
+  'sql': {  # 数据库连接配置
+    'engine': str,  # Python 连接数据库所使用的模块, 如 `sqlite3`, `pymysql` 等
+    'database': str,  # 数据库名
+    'host': str,  # 主机
+    'user': str,  # 用户名
+    'password': str,  # 密码
+    # 以及其它连接数据库所使用的参数
+  },
+
+  'log': {
+    'log_dir': str, # 日志存放目录
+  },
+}
+""" `Subscriber` 配置 """
+
+# 实例化 `Subscriber`
+_subscriber = Subscriber(**_config)
+
+# 启动任务.
+website_module = 'websites'
+""" 自定义脚本根模块 """
+_work_id: int = 0
+""" 任务 ID """
+_subscriber.start(
+  website_module,
+  _work_id,
+)
+```
 
 # 数据
 
@@ -108,10 +187,13 @@ _账号选项_ 描述了一个网站的每个账号不同的参数.
 [账号选项]: #账号选项
 [任务选项]: #任务选项
 [logs]: logs/
-[main.py]: test.py
+[main.py]: main.py
 [config.yml]: config.yml
 [others/generator-*.sql]: others/
-[requirements]: requirements
+[requirements]: requirements/
 [subscriber.sqlite]: subscriber.sqlite
 [`example_website`]: websites/example_website/
 [`example_work`]: websites/example_website/example_work.py
+[`website_module`]: websites/
+[`JobUtil`]: subscriber/utils/job/__init__.py
+[`JobAsyncUtil`]: subscriber/utils/job/__init__.py

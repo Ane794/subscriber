@@ -1,4 +1,4 @@
-from utils.obj_util import parse_json
+from ..utils import parse_json
 
 
 class DbModel:
