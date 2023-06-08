@@ -10,16 +10,18 @@
   - [2. 调用 `Subscriber`](#2-调用-subscriber)
 - [数据](#数据)
   - [数据库配置](#数据库配置)
-  - [数据模型](#数据模型)
+    - [数据模型](#数据模型)
       - [Website (网站)](#website-网站)
       - [Account (账号)](#account-账号)
-      - [Work (任务)](#work-任务)
+      - [Task (任务)](#task-任务)
+      - [Execution (执行)](#execution-执行)
   - [网站](#网站)
     - [简介](#简介)
       - [登录方式](#登录方式)
       - [网站选项](#网站选项)
       - [账号选项](#账号选项)
       - [任务选项](#任务选项)
+      - [执行选项](#执行选项)
     - [通用](#通用)
       - [网站选项](#网站选项-1)
 
@@ -45,20 +47,47 @@ pip install git+https://github.com/Ane794/subscriber.git
 - subscriber  # 本项目或调用本项目的项目的根目录
   - websites/  # 自定义脚本的根目录; 名称可自定义, 在本文档中记作 `website_module`
     - example_website/  # 网站的名称
-      - example_work.py  # 自定义任务的脚本
+      - example_task.py  # 自定义任务的脚本
 ```
 
 当用户需要添加一个自定义任务时, 需要如下步骤:
 
 1. 添加一个新网站:
-   1. 更新数据库的表格 `website`, 为新网站添加一条记录 (详见 [数据模型 - 网站](#website-网站);
+   1. 更新数据库的表格 `website`, 为新网站添加一条记录 (详见 [数据模型 - 网站];
    2. 在 [`website_module`] (自定义脚本根目录) 为网站新建一个目录, 名称与表格 `website` 的字段 `name` 保持一致;
 2. 编写一个任务脚本:
-   在网站的目录下为任务新建一个脚本 `<任务名>.py`, 继承 [`JobUtil`] 或 [`JobAsyncUtil`] 定义一个类 `Job`, 重写 `_job` 方法, 在其中编写该任务的主要流程;
+   在网站的目录下为任务新建一个脚本 `<任务名>.py`, 继承 [`TaskRunner`] 或 [`TaskAsyncRunner`] 定义一个类 `WebsiteTask`, 重写 `run()` 方法, 在其中编写该任务的主要流程; 如:
+
+   ```py
+   """ 文件 websites/example_website/example_task.py """
+
+   from subscriber import Execution, TaskRunner
+
+
+   class WebsiteTask(TaskRunner):
+       """ 示例任务 """
+
+       _BASE_URL = 'https://google.com/'
+
+       def run(self) -> tuple[int, str]:
+           """ 任务主要流程. """
+
+           _res = self._get(self._BASE_URL)
+
+           if _res.status_code != 200:
+               self._err(_res.text)
+           else:
+               self._info(_res.text)
+
+           return _res.status_code, _res.text
+   ```
+
 3. 添加用户:
-   更新数据表的表格 `account`, 为该网站的新用户添加记录 (详见 [数据模型 - 账号](#account-账号));
+   更新数据表的表格 `account`, 为该网站的新用户添加记录 (详见 [数据模型 - 账号]);
 4. 添加任务:
-   更新数据表的表格 `work`, 为 _使用哪个用户执行哪个任务_ 添加记录 (详见 [数据模型 - 任务](#work-任务)), 字段 `name` 与任务脚本名称 (不包含后缀) 保持一致.
+   更新数据表的表格 `task`, 为该脚本添加记录 (详见 [数据模型 - 任务]), 字段 `name` 与该脚本名称 (不包含后缀) 保持一致;
+5. 添加执行:
+   更新数据表的表格 `execution`, 为 _该用户执行该脚本_ 添加记录 (详见 [数据模型 - 执行])
 
 ## 2. 调用 `Subscriber`
 
@@ -68,44 +97,35 @@ from subscriber import Subscriber
 # 准备实例化 `Subscriber` 所需的参数, 包含了数据库连接配置, 日志存放目录等.
 _config = {
   'sql': {  # 数据库连接配置
-    'engine': str,  # Python 连接数据库所使用的模块, 如 `sqlite3`, `pymysql` 等
-    'database': str,  # 数据库名
-    'host': str,  # 主机
-    'user': str,  # 用户名
-    'password': str,  # 密码
-    # 以及其它连接数据库所使用的参数
+    'engine': 'sqlite3',  # Python 连接数据库所使用的模块, 如 `sqlite3`, `pymysql` 等
+    'database': 'subscriber.sqlite',  # 数据库名
+    # 以及其它连接数据库所使用的参数, 如 `host`, `user` 等
   },
 
   'log': {
-    'log_dir': str, # 日志存放目录
+    'log_dir': 'logs', # 日志存放目录
   },
 }
 """ `Subscriber` 配置 """
 
-# 实例化 `Subscriber`
+# 实例化 `Subscriber`.
 _subscriber = Subscriber(**_config)
 
-# 启动任务.
+# 执行任务.
 website_module = 'websites'
 """ 自定义脚本根模块 """
-_work_id: int = 0
-""" 任务 ID """
-_subscriber.start(
-  website_module,
-  _work_id,
-)
+_execution_id: int = 0
+""" 执行 ID """
+_subscriber.start(website_module, _execution_id)
 ```
 
 # 数据
 
 ## 数据库配置
 
-1. 在 [config.yml] 中的 `sql` 字段配置连接的数据库与账号, 密码等;  
-   默认为目录下的 [subscriber.sqlite].
+利用文件 [others/generator-*.sql] 依次创建数据表 `website`, `account`, `task` 和 `execution`.
 
-2. 利用文件 [others/generator-*.sql] 依次创建数据表 `website`, `account` 和 `work`.
-
-## 数据模型
+### 数据模型
 
 #### Website (网站)
 
@@ -126,14 +146,23 @@ _subscriber.start(
 | options    | json        | `{"选项1": 值, "选项2": 值}` | 账号选项; 详见 [账号选项]            |
 | website_id | int(11)     | `0`                          | 网站 ID                              |
 
-#### Work (任务)
+#### Task (任务)
 
 | 字段名     | 数据类型    | 举例                         | 描述                      |
 | ---------- | ----------- | ---------------------------- | ------------------------- |
-| id         | int(11)     | `1`                          | 任务 ID                   |
-| name       | varchar(21) | `AWorkName`                  | 任务名称                  |
+| id         | int(11)     | `0`                          | 任务 ID                   |
+| name       | varchar(21) | `MyUserName`                 | 任务名称                  |
 | options    | json        | `{"选项1": 值, "选项2": 值}` | 任务选项; 详见 [任务选项] |
-| account_id | int(11)     | `1`                          | 账号 ID                   |
+| website_id | int(11)     | `0`                          | 网站 ID                   |
+
+#### Execution (执行)
+
+| 字段名     | 数据类型 | 举例                         | 描述                      |
+| ---------- | -------- | ---------------------------- | ------------------------- |
+| id         | int(11)  | `1`                          | 执行 ID                   |
+| options    | json     | `{"选项1": 值, "选项2": 值}` | 执行选项; 详见 [执行选项] |
+| task_id    | int(11)  | `1`                          | 任务 ID                   |
+| account_id | int(11)  | `1`                          | 账号 ID                   |
 
 ## 网站
 
@@ -153,25 +182,28 @@ _subscriber.start(
 
 #### 网站选项
 
-_网站选项_ 描述了一个网站的所有账号都共用的参数.
+_网站选项_ 描述了一个网站的所有执行都共用的选项.
 
 例如, 网站 [`example_website`] 当前需要配置代理, 而其他网站不需要,
-因此代理对应的参数 `proxies` 是 [`example_website`] 独有的;  
-[`example_website`] 的每个账号都共用同一个代理, 因此 `proxies` 是 [`example_website`] 的 _网站选项_.
+因此选项 `proxies` 是 [`example_website`] 的 _网站选项_.
 
 #### 账号选项
 
-_账号选项_ 描述了一个网站的每个账号不同的参数.
+_账号选项_ 描述了一个账号在执行时与其他账号不同的选项.
+_网站选项_ 中的同名选项会被覆盖.
 
-例如, [`example_website`] 的每个账号都有不同的地区, 且其他网站的账号没有这个选项,
-所以它对应的参数 `region` 是 [`example_website`] 独有的;  
-且每个账号的这个参数是不同的, 因此 `region` 是 [`example_website`] 的 _账号选项_.
+例如, [`example_website`] 的每个账号都有不同的地区,  
+所以它选项 `region` 是 [`example_website`] 的账号的 _账号选项_.
 
 #### 任务选项
 
-例如, 网站 [`example_website`] 的任务 [`example_work`] 当前需要配置代理, 而其他任务不需要,  
-因此代理对应的参数 `proxies` 是 [`example_work`] 独有的;  
-[`example_work`] 的每个账号都共用同一个代理, 因此 `proxies` 是 [`example_work`] 的 _任务选项_.
+_任务选项_ 描述了一个任务在执行时与其他任务不同的选项.
+_账号选项_ 和 _网站选项_ 中的同名选项会被覆盖.
+
+#### 执行选项
+
+_执行选项_ 描述了一个执行与其他执行不同的选项.
+_任务选项_, _账号选项_ 和 _网站选项_ 中的同名选项会被覆盖.
 
 ### 通用
 
@@ -182,18 +214,18 @@ _账号选项_ 描述了一个网站的每个账号不同的参数.
 | debug   | 否   | bool     | `true`                               | debug 模式; 为 `true` 时会输出更详细的日志 |
 | proxies | 否   | json     | `{"HTTP": "http://localhost:1080/"}` | Requests 所使用的代理                      |
 
+[数据模型 - 网站]: #website-网站
+[数据模型 - 账号]: #account-账号
+[数据模型 - 任务]: #task-任务
+[数据模型 - 执行]: #execution-执行
 [登录方式]: #登录方式
 [网站选项]: #网站选项
 [账号选项]: #账号选项
 [任务选项]: #任务选项
-[logs]: logs/
+[执行选项]: #执行选项
 [main.py]: main.py
-[config.yml]: config.yml
 [others/generator-*.sql]: others/
-[requirements]: requirements/
-[subscriber.sqlite]: subscriber.sqlite
 [`example_website`]: websites/example_website/
-[`example_work`]: websites/example_website/example_work.py
 [`website_module`]: websites/
-[`JobUtil`]: subscriber/utils/job/__init__.py
-[`JobAsyncUtil`]: subscriber/utils/job/__init__.py
+[`TaskRunner`]: subscriber/utils/task_runner/__init__.py
+[`TaskAsyncRunner`]: subscriber/utils/task_runner/__init__.py

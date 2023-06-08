@@ -1,6 +1,7 @@
+import asyncio
 import importlib
 
-from .utils.sql import LoginSqlUtil
+from .utils.sql import SqlFetchUtil
 
 
 class Subscriber:
@@ -16,7 +17,12 @@ class Subscriber:
                 headers: 头
                 ...: 其他 request 参数
         """
-        self._conf = config
+        self._conf: dict = config
+        self._sql: SqlFetchUtil
+
+        self._init_conf()
+
+    def _init_conf(self):
         self._conf.setdefault('sql', {})
         self._conf.get('sql').setdefault('engine', 'sqlite3')
         self._conf.get('sql').setdefault('database', 'subscriber.sqlite')
@@ -28,15 +34,23 @@ class Subscriber:
 
         # 数据库连接配置
         _sql_conf = self._conf.get('sql', {})
-        self._login_util = LoginSqlUtil(**_sql_conf)
+        self._sql = SqlFetchUtil(**_sql_conf)
 
-    def start(self, websites_package, work_id: int) -> tuple[int, object]:
-        _work = self._login_util.fetch_work(work_id)
+    def start(self, websites_package, execution_id: int) -> tuple[int, object]:
+        _execution = self._sql.fetch_execution(execution_id)
 
-        _work_module = importlib.import_module(f'.{_work.account.website.name}.{_work.name}', websites_package)
-        """ 任务模块; 根据执行方法和网站名定位到 """
-        return _work_module.Job(
-            _work,
+        _task_module = importlib.import_module(
+            f'.{_execution.account.website.name}.{_execution.task.name}', websites_package
+        )
+        """ 任务执行模块; 根据网站名称和任务名称定位到 """
+
+        _website_task = _task_module.WebsiteTask(
+            _execution,
             request_kwargs=self._conf.get('request'),
             log_kwargs=self._conf.get('log'),
-        ).start()
+        )
+
+        if asyncio.iscoroutinefunction(_website_task.start):  # 异步执行.
+            return asyncio.run(_website_task.start())
+        else:  # 同步执行.
+            return _website_task.start()

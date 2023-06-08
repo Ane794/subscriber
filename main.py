@@ -7,7 +7,7 @@ from subscriber import Subscriber
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='Subscriber')
     parser.add_argument(
-        'work_id',
+        'execution_id',
         action='extend',
         type=int,
         nargs='+',
@@ -25,5 +25,5 @@ if __name__ == '__main__':
     args.config.close()
 
     subscriber = Subscriber(**config)
-    for work_id in args.work_id:
-        subscriber.start('websites', work_id)
+    for execution_id in args.execution_id:
+        subscriber.start('websites', execution_id)

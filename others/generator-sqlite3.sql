@@ -20,18 +20,33 @@ create table account
     website_id integer not null
         constraint account_website_id_fk
             references website,
-    comment text
+    comment    text
 );
 
-create table work
+create table task
 (
     id         integer not null
-        constraint work_pk
+        constraint task_pk
             primary key autoincrement,
     name       text    not null,
     options    text,
+    website_id integer not null
+        constraint task_website_id_fk
+            references website,
+    comment    text
+);
+
+create table execution
+(
+    id         integer not null
+        constraint execution_pk
+            primary key autoincrement,
+    options    text,
+    task_id    integer not null
+        constraint execution_task_id_fk
+            references task,
     account_id integer not null
-        constraint work_account_id_fk
+        constraint execution_account_id_fk
             references account,
-    comment text
+    comment    text
 );

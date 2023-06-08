@@ -2,13 +2,11 @@ import importlib
 
 
 class SqlUtil:
-    """
-    数据库的工具类
-    """
+    """ 数据库的工具类 """
 
     def __init__(self, **kwargs):
         # 连接数据库.
-        self.kwargs = kwargs
+        self.kwargs: dict[str] = kwargs
         self.db = importlib.import_module(self.kwargs.pop('engine', 'sqlite3'))
         if self.db == 'sqlite3':
             _database = self.kwargs.pop('database', 'db/subscriber.sqlite')
@@ -16,7 +14,7 @@ class SqlUtil:
         self.db_conn = None
         self.cursor = None
 
-        # self.insert, self.delete 与 self.update 的实现相同.
+        # `self.insert`, `self.delete` 与 `self.update` 的实现相同.
         self.insert = self.update
         self.delete = self.update
 
@@ -75,8 +73,12 @@ class SqlUtil:
         finally:
             self.db_conn.close()
 
-    def res_to_dict(self, res) -> dict:
-        """ 将查询结果转换成 dict. """
+    def res_to_dict(self, res: tuple | dict) -> dict:
+        """
+        将查询结果转换成 `dict`.
+        :param res: 查询结果
+        :return: 转换后的查询结果
+        """
         if isinstance(res, tuple):
             return {
                 self.cursor.description[i][0]: res[i]

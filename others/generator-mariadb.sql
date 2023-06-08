@@ -1,34 +1,48 @@
 create table website
 (
-    id      int auto_increment comment '网站 ID'
+    id      int auto_increment comment 'ID'
         primary key,
-    name    longtext not null comment '网站名称',
-    options json comment '网站选项',
+    name    longtext not null comment '名称',
+    options json comment '选项',
     comment longtext comment '注释'
 ) comment '网站';
 
 create table account
 (
-    id         int auto_increment comment '账号 ID'
+    id         int auto_increment comment 'ID'
         primary key,
-    name       longtext not null comment '账号名称',
+    name       longtext not null comment '名称',
     login_key  longtext not null comment '登录密钥',
-    nickname   longtext comment '账号昵称',
-    options    json comment '账号选项',
+    nickname   longtext comment '昵称',
+    options    json comment '选项',
     website_id int      not null comment '网站 ID',
     comment    longtext comment '注释',
     constraint account_website_id_fk
         foreign key (website_id) references website (id)
 ) comment '账号';
 
-create table work
+create table task
 (
-    id         int auto_increment comment '任务 ID'
+    id         int auto_increment comment 'ID'
         primary key,
-    name       longtext not null comment '任务名称',
-    options    json comment '任务选项',
-    account_id int      not null comment '账号 ID',
+    name       longtext not null comment '名称',
+    options    json comment '选项',
+    website_id int      not null comment '网站 ID',
     comment    longtext comment '注释',
-    constraint work_account_id_fk
-        foreign key (account_id) references account (id)
+    constraint task_website_id_fk
+        foreign key (website_id) references account (id)
 ) comment '任务';
+
+create table execution
+(
+    id         int auto_increment comment 'ID'
+        primary key,
+    options    json comment '选项',
+    task_id    int not null comment '任务 ID',
+    account_id int not null comment '账号 ID',
+    comment    longtext comment '注释',
+    constraint execution_task_id_fk
+        foreign key (task_id) references account (id),
+    constraint execution_account_id_fk
+        foreign key (account_id) references account (id)
+) comment '执行';
