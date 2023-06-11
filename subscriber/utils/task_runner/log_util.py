@@ -1,6 +1,8 @@
 import logging
 import os
 
+import sys
+
 
 class LogUtil:
     def __init__(self, titles: list[str], log_dir: str, debug: bool = False):
@@ -49,19 +51,23 @@ class LogUtil:
             level=logging.DEBUG,
         )
 
-    def _log(self, level: int, msg='', prints: bool = True):
+    def _log(self, level: int, msg='', prints: bool = True, file=sys.stdout):
         """
         将消息格式化后输出到日志和终端.
         :param level: 日志等级
         :param msg: 信息
         :param prints: 是否输出到终端
+        :param file: 函数 `print` 的 `file` 参数
         """
         if prints:
-            print('%-8s [%s] %s' % (
-                logging.getLevelName(level),
-                ']['.join(self._titles),
-                msg
-            ))
+            print(
+                '%-8s [%s] %s' % (
+                    logging.getLevelName(level),
+                    ']['.join(self._titles),
+                    msg
+                ),
+                file=file,
+            )
         logging.log(level, msg)
 
     def _debug(self, msg):
@@ -74,7 +80,7 @@ class LogUtil:
         self._log(logging.WARNING, msg)
 
     def _err(self, msg):
-        self._log(logging.ERROR, msg)
+        self._log(logging.ERROR, msg, file=sys.stderr)
 
     def _exception(self, msg):
         self._err(msg)

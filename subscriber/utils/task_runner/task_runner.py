@@ -1,5 +1,3 @@
-import aiohttp
-
 from .request_util import RequestUtil, RequestAsyncUtil
 from ...models import Execution
 
@@ -13,10 +11,10 @@ class TaskRunner(RequestUtil):
         """
         self._website = execution.task.website
         """ 网站实例 """
-        self._task = execution.task
-        """ 任务实例 """
         self._account = execution.account
         """ 账号实例 """
+        self._task = execution.task
+        """ 任务实例 """
         self._execution = execution
         """ 执行实例 """
 
@@ -29,7 +27,13 @@ class TaskRunner(RequestUtil):
         for _ in _parsed_kwargs:
             request_kwargs.setdefault(_, _parsed_kwargs.get(_))
 
-        log_kwargs.setdefault('debug', self._website.options.get('debug', False))
+        log_kwargs.setdefault(
+            'debug',
+            self._execution.options.get('debug') or
+            self._task.options.get('debug') or
+            self._account.options.get('debug') or
+            self._website.options.get('debug'),
+        )
         log_kwargs.setdefault('titles', [
             self._website.name,
             self._account.nickname if self._account.nickname else self._account.name,

@@ -79,10 +79,10 @@ class RequestUtil(LogUtil):
         if _res.request.body:
             self._debug(f'request body: {_res.request.body}')
         self._debug(f'response headers: {_res.headers}')
-        if outputs_res_body:
+        if outputs_res_body or self._is_debug:
             self._debug(f'response content: {_res.text}')
 
-        if expected_code and _res.status_code != expected_code:
+        if expected_code is not None and _res.status_code != expected_code:
             raise self.UnexpectedStatusCodeError(expected_code, _res.status_code)
 
         return _res
