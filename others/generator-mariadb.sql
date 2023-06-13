@@ -27,6 +27,7 @@ create table task
         primary key,
     name       longtext not null comment '名称',
     options    json comment '选项',
+    codes      json comment '表示成功或忽略的返回码',
     website_id int      not null comment '网站 ID',
     comment    longtext comment '注释',
     constraint task_website_id_fk
@@ -41,6 +42,8 @@ create table execution
     task_id    int not null comment '任务 ID',
     account_id int not null comment '账号 ID',
     comment    longtext comment '注释',
+    result     json comment '上次运行结果',
+    last_run   datetime comment '上次运行时间',
     constraint execution_task_id_fk
         foreign key (task_id) references account (id),
     constraint execution_account_id_fk

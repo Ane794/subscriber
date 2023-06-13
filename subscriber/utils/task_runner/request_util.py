@@ -42,10 +42,10 @@ class RequestUtil(LogUtil):
         """ 上次执行是否失败. """
         return self.failed
 
-    def _start(self, fun):
+    def _start(self, fun, args: tuple, kwargs: dict[str]):
         """ 调用方法 `self._run(fun)` 并捕获异常和返回值; 失败时自动重试. """
         try:
-            result = self._run(fun)
+            result = self._run(fun, args, kwargs)
             self.failed = False
             return result
         except Exception as e:
@@ -54,14 +54,14 @@ class RequestUtil(LogUtil):
         finally:
             self._end()
 
-    def _run(self, fun):
+    def _run(self, fun, args: tuple, kwargs: dict[str]):
         """
         准备运行时的环境 (如新建会话等); 执行函数 `fun()`.
         :param fun: 待执行的函数
         :return: fun() 的返回值
         """
         self._session = requests.Session()
-        return fun()
+        return fun(*args, **kwargs)
 
     def _end(self):
         """ 清理运行时的环境 (如关闭会话, 清除缓存等). """
@@ -120,21 +120,22 @@ class RequestAsyncUtil(RequestUtil):
         self._loop = asyncio.get_event_loop()
         self._session: aiohttp.ClientSession
 
-    async def _start(self, fun):
+    async def _start(self, fun, args: tuple, kwargs: dict[str]):
         """ 调用方法 `self._run(fun)` 并捕获异常和返回值; 失败时自动重试. """
         try:
-            result = await self._run(fun)
+            result = await self._run(fun, args, kwargs)
             self.failed = False
             return result
         except Exception as e:
             self.failed = True
             self._err(e)
+            return 1, e
         finally:
             await self._end()
 
-    async def _run(self, fun):
+    async def _run(self, fun, args: tuple, kwargs: dict[str]):
         self._session = aiohttp.ClientSession()
-        return await fun()
+        return await fun(*args, **kwargs)
 
     async def _end(self):
         await self._session.close()

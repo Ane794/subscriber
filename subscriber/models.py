@@ -1,3 +1,4 @@
+import datetime
 import json
 import re
 
@@ -51,6 +52,8 @@ class Task(DbModel):
         """ 任务名称 """
         self.options: dict[str] = {}
         """ 任务选项 """
+        self.codes: dict[str, list[int]] = {'success': [0], 'ignored': []}
+        """ 表示成功或忽略的返回码 """
         self.website_id: int = 0
         """ 网站 ID """
         self.website: Website = None
@@ -93,5 +96,9 @@ class Execution(DbModel):
         """ 账号 ID """
         self.account: Account = None
         """ 账号实例 """
+        self.result: list[int, object] = [-1, None]
+        """ 上次运行结果 """
+        self.last_run: datetime.datetime = None
+        """ 上次运行时间 """
 
         super().__init__(**kwargs)

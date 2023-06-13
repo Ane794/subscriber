@@ -42,11 +42,11 @@ class TaskRunner(RequestUtil):
 
         super().__init__(log_kwargs=log_kwargs, request_kwargs=request_kwargs)
 
-    def start(self) -> tuple[int, object]:
+    def start(self, *args, **kwargs) -> tuple[int, object]:
         """ 执行任务. """
-        return self._start(self.run)
+        return self._start(self.run, args, kwargs)
 
-    def run(self) -> tuple[int, object]:
+    def run(self, *args, **kwargs) -> tuple[int, object]:
         """ 任务流程. """
         pass
 
@@ -102,9 +102,9 @@ class TaskRunner(RequestUtil):
 class TaskAsyncRunner(TaskRunner, RequestAsyncUtil):
     """ JobUtil 的异步版本 """
 
-    async def start(self) -> tuple[int, object]:
+    async def start(self, *args, **kwargs) -> tuple[int, object]:
         """ 执行任务. """
-        return await self._start(self.run)
+        return await self._start(self.run, args, kwargs)
 
-    async def run(self) -> tuple[int, object]:
+    async def run(self, *args, **kwargs) -> tuple[int, object]:
         pass

@@ -30,6 +30,7 @@ create table task
             primary key autoincrement,
     name       text    not null,
     options    text,
+    codes      text,
     website_id integer not null
         constraint task_website_id_fk
             references website,
@@ -48,5 +49,7 @@ create table execution
     account_id integer not null
         constraint execution_account_id_fk
             references account,
+    result     text,
+    last_run   datetime,
     comment    text
 );

@@ -8,11 +8,11 @@ class SqlFetchUtil(SqlUtil):
             attr_names = []
 
         _data = self.res_to_dict(
-            self.fetchone(f'select * from {object_name} where id = {object_id}')
+            self.fetchone(f'''select * from {object_name} where id = {object_id}''')
         )
 
         if not _data:
-            print(f'找不到 ID 为 `{object_id}` 的 `{object_name}`!')
+            print(f'''找不到 ID 为 `{object_id}` 的 `{object_name}`!''')
             return None
 
         for _name in attr_names:
@@ -34,3 +34,20 @@ class SqlFetchUtil(SqlUtil):
 
     def fetch_execution(self, execution_id: int) -> Execution | None:
         return self.fetch_for(Execution, 'execution', execution_id, ['task', 'account'])
+
+    def update_for(self, object_name: str, object_id: int, data: dict[str]):
+        self.update(
+            f'''update {object_name} set ''' +
+            ', '.join([
+                _k + '=' + (
+                    str(_v) if isinstance(_v, int) else
+                    '\'%s\'' % _v if isinstance(_v, str) else
+                    '\'%s\'' % json.dumps(_v, ensure_ascii=False)
+                )
+                for _k, _v in data.items()
+            ]) +
+            f''' where id={object_id}''',
+        )
+
+    def update_execution(self, execution_id: int, **data):
+        self.update_for('execution', execution_id, data)
