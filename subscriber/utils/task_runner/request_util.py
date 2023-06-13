@@ -12,26 +12,23 @@ class RequestUtil(LogUtil):
         """ 因状态码与预期不符产生的异常. """
 
         def __init__(self, expected_code: int, status_code: int):
-            self.expected_code = expected_code
-            self.status_code = status_code
-            self.msg = f'响应的状态码 ({self.status_code}) 与预期 ({self.expected_code}) 不符!'
+            self.EXPECTED_CODE = expected_code
+            self.STATUS_CODE = status_code
+            self.MSG = f'响应的状态码 ({self.STATUS_CODE}) 与预期 ({self.EXPECTED_CODE}) 不符!'
 
         def __str__(self):
-            return self.msg
+            return self.MSG
 
     def __init__(self, log_kwargs: dict = None, request_kwargs: dict = None):
         """
         :param log_kwargs: `LogUtil` 的关键字参数
         :param request_kwargs: 发送请求所使用的关键字参数
         """
-        if log_kwargs is None:
-            log_kwargs = {}
-        if request_kwargs is None:
-            request_kwargs = {}
+        super().__init__(**(
+            log_kwargs if log_kwargs is not None else {}
+        ))
 
-        super().__init__(**log_kwargs)
-
-        self._request_kwargs = request_kwargs
+        self._REQUEST_KWARGS = request_kwargs.copy() if request_kwargs is not None else {}
         """ 请求参数 """
         self._session = None
         """ 会话 """
@@ -45,12 +42,12 @@ class RequestUtil(LogUtil):
     def _start(self, fun, args: tuple, kwargs: dict[str]):
         """ 调用方法 `self._run(fun)` 并捕获异常和返回值; 失败时自动重试. """
         try:
-            result = self._run(fun, args, kwargs)
+            _RESULT = self._run(fun, args, kwargs)
             self.failed = False
-            return result
-        except Exception as e:
+            return _RESULT
+        except Exception as E:
             self.failed = True
-            self._err(e)
+            self._err(E)
         finally:
             self._end()
 
@@ -74,18 +71,18 @@ class RequestUtil(LogUtil):
         :param outputs_res_body: 是否输出响应内容
         :return: `Response` 实例
         """
-        _res = self._session.request(*args, **self._parse_request_kwargs(kwargs))
+        _RES = self._session.request(*args, **self._parse_request_kwargs(kwargs))
 
-        if _res.request.body:
-            self._debug(f'request body: {_res.request.body}')
-        self._debug(f'response headers: {_res.headers}')
-        if outputs_res_body or self._is_debug:
-            self._debug(f'response content: {_res.text}')
+        if _RES.request.body:
+            self._debug(f'request body: {_RES.request.body}')
+        self._debug(f'response headers: {_RES.headers}')
+        if outputs_res_body or self._IS_DEBUG:
+            self._debug(f'response content: {_RES.text}')
 
-        if expected_code is not None and _res.status_code != expected_code:
-            raise self.UnexpectedStatusCodeError(expected_code, _res.status_code)
+        if expected_code is not None and _RES.status_code != expected_code:
+            raise self.UnexpectedStatusCodeError(expected_code, _RES.status_code)
 
-        return _res
+        return _RES
 
     def _parse_request_kwargs(self, kwargs: dict[str]) -> dict[str]:
         """
@@ -93,13 +90,14 @@ class RequestUtil(LogUtil):
         :param kwargs: 新的 Request 参数
         :return: 合并得到的 Request 参数
         """
-        for _ in self._request_kwargs:
-            if isinstance(kwargs.get(_), dict):
-                kwargs.get(_).update(**self._request_kwargs.get(_))
+        _kwargs = kwargs.copy()
+        for _ in self._REQUEST_KWARGS:
+            if isinstance(_kwargs.get(_), dict):
+                _kwargs.get(_).update(**self._REQUEST_KWARGS.get(_))
             else:
-                kwargs.setdefault(_, self._request_kwargs.get(_))
+                _kwargs.setdefault(_, self._REQUEST_KWARGS.get(_))
 
-        return kwargs
+        return _kwargs
 
     def _get(self, *args, **kwargs) -> requests.Response:
         return self._request('GET', *args, **kwargs)
@@ -123,13 +121,13 @@ class RequestAsyncUtil(RequestUtil):
     async def _start(self, fun, args: tuple, kwargs: dict[str]):
         """ 调用方法 `self._run(fun)` 并捕获异常和返回值; 失败时自动重试. """
         try:
-            result = await self._run(fun, args, kwargs)
+            _RESULT = await self._run(fun, args, kwargs)
             self.failed = False
-            return result
-        except Exception as e:
+            return _RESULT
+        except Exception as E:
             self.failed = True
-            self._err(e)
-            return 1, e
+            self._err(E)
+            return 1, E
         finally:
             await self._end()
 
@@ -142,16 +140,16 @@ class RequestAsyncUtil(RequestUtil):
 
     async def _request(self, *args, expected_code: int = None, outputs_res_body=False,
                        **kwargs) -> aiohttp.ClientResponse:
-        _res = await self._session.request(*args, **self._parse_request_kwargs(kwargs))
+        _RES = await self._session.request(*args, **self._parse_request_kwargs(kwargs))
 
-        self._debug("response: " + str(_res).replace('\n', ''))
+        self._debug("response: " + str(_RES).replace('\n', ''))
         if outputs_res_body:
-            self._debug(f'response content: {json.loads(await _res.text())}')
+            self._debug(f'response content: {json.loads(await _RES.text())}')
 
-        if expected_code is not None and _res.status != expected_code:
-            raise self.UnexpectedStatusCodeError(expected_code, _res.status)
+        if expected_code is not None and _RES.status != expected_code:
+            raise self.UnexpectedStatusCodeError(expected_code, _RES.status)
 
-        return _res
+        return _RES
 
     async def _get(self, *args, **kwargs) -> aiohttp.ClientResponse:
         return await self._request('GET', *args, **kwargs)

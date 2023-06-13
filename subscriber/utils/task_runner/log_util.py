@@ -11,11 +11,11 @@ class LogUtil:
         :param log_dir: 日志根目录
         :param debug: 是否在 debug; `False` 时将跳过 `_debug()` 的控制台输出
         """
-        self._titles: list[str] = titles
+        self._TITLES: list[str] = titles.copy()
         """ 标题列表 """
-        self._log_dir: str = log_dir
+        self._LOG_DIR: str = log_dir
         """ 日志根目录 """
-        self._is_debug: bool = debug
+        self._IS_DEBUG: bool = debug
         """ 是否在 debug; False 时将跳过方法 LogUtil._debug() """
 
         self._refresh_logging_config()
@@ -33,20 +33,20 @@ class LogUtil:
 
     def _refresh_logging_config(self):
         """ 刷新日志设置. """
-        _dirs: list[dir] = [self._log_dir] + self._titles
+        _DIRS: list[dir] = [self._LOG_DIR] + self._TITLES
         """ 目录列表; 按从外层到内层的顺序依次列出 """
 
-        self._make_log_dir(_dirs)
+        self._make_log_dir(_DIRS)
 
         # 刷新日志格式.
         logging.basicConfig(
             handlers=[
                 logging.FileHandler(
-                    filename='%s.log' % ('/'.join(_dirs)), mode='a', encoding='UTF-8',
+                    filename='%s.log' % ('/'.join(_DIRS)), mode='a', encoding='UTF-8',
                 ),
             ],
             format='%(asctime)s  %(levelname)-8s'
-                   f' [{"][".join(self._titles)}]'
+                   f' [{"][".join(self._TITLES)}]'
                    ' %(message)s',
             level=logging.DEBUG,
         )
@@ -63,7 +63,7 @@ class LogUtil:
             print(
                 '%-8s [%s] %s' % (
                     logging.getLevelName(level),
-                    ']['.join(self._titles),
+                    ']['.join(self._TITLES),
                     msg
                 ),
                 file=file,
@@ -71,7 +71,7 @@ class LogUtil:
         logging.log(level, msg)
 
     def _debug(self, msg):
-        self._log(logging.DEBUG, msg, self._is_debug)
+        self._log(logging.DEBUG, msg, self._IS_DEBUG)
 
     def _info(self, msg):
         self._log(logging.INFO, msg)

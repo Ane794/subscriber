@@ -73,15 +73,18 @@ class SqlUtil:
         finally:
             self.db_conn.close()
 
-    def res_to_dict(self, res: tuple | dict) -> dict:
+    def res_to_dict(self, res: tuple | list | dict) -> dict:
         """
         将查询结果转换成 `dict`.
         :param res: 查询结果
         :return: 转换后的查询结果
         """
-        if isinstance(res, tuple):
+        if isinstance(res, (tuple, list)):
             return {
-                self.cursor.description[i][0]: res[i]
-                for i in range(0, len(self.cursor.description))
+                self.cursor.description[_][0]: res[_]
+                for _ in range(len(self.cursor.description))
             }
-        return res
+        elif isinstance(res, dict):
+            return res.copy()
+        else:
+            return res

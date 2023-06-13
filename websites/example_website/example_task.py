@@ -7,7 +7,8 @@ class WebsiteTask(TaskRunner):
     _BASE_URL = 'https://google.com/'
 
     def __init__(self, execution: Execution, log_kwargs: dict, request_kwargs: dict):
-        log_kwargs.update(
+        _log_kwargs = log_kwargs.copy()
+        _log_kwargs.update(
             titles=[
                 execution.account.website.name,
                 execution.account.name,
@@ -17,8 +18,8 @@ class WebsiteTask(TaskRunner):
 
         super().__init__(
             execution,
-            log_kwargs=log_kwargs,
-            request_kwargs=request_kwargs,
+            log_kwargs=_log_kwargs,
+            request_kwargs=request_kwargs.copy(),
         )
 
     def run(self) -> tuple[int, str]:

@@ -18,29 +18,27 @@ class TaskRunner(RequestUtil):
         self._execution = execution
         """ 执行实例 """
 
-        if log_kwargs is None:
-            log_kwargs = {}
-        if request_kwargs is None:
-            request_kwargs = {}
+        _log_kwargs = log_kwargs.copy() if log_kwargs is not None else {}
+        _request_kwargs = request_kwargs.copy() if request_kwargs is not None else {}
 
         _parsed_kwargs = self._parse_kwargs()
         for _ in _parsed_kwargs:
-            request_kwargs.setdefault(_, _parsed_kwargs.get(_))
+            _request_kwargs.setdefault(_, _parsed_kwargs.get(_))
 
-        log_kwargs.setdefault(
+        _log_kwargs.setdefault(
             'debug',
             self._execution.options.get('debug') or
             self._task.options.get('debug') or
             self._account.options.get('debug') or
             self._website.options.get('debug'),
         )
-        log_kwargs.setdefault('titles', [
+        _log_kwargs.setdefault('titles', [
             self._website.name,
             self._account.nickname if self._account.nickname else self._account.name,
             self._task.name,
         ])
 
-        super().__init__(log_kwargs=log_kwargs, request_kwargs=request_kwargs)
+        super().__init__(log_kwargs=_log_kwargs, request_kwargs=_request_kwargs)
 
     def start(self, *args, **kwargs) -> tuple[int, object]:
         """ 执行任务. """
@@ -57,39 +55,39 @@ class TaskRunner(RequestUtil):
         """
         _kwargs = {}
 
-        _keys = ['proxies']
-        for _ in _keys:
-            _value = self._execution.options.get(
+        _KEYS = ['proxies']
+        for _ in _KEYS:
+            _VALUE = self._execution.options.get(
                 _, self._account.options.get(
                     _, self._task.options.get(
                         _, self._website.options.get(_),
                     ),
                 ),
             )
-            if _value is not None:
-                _kwargs[_] = _value
+            if _VALUE is not None:
+                _kwargs[_] = _VALUE
 
-        _keys = ['User-Agent']
+        _KEYS = ['User-Agent']
         _headers = self._website.options.get('headers', {})
-        _account_headers = self._account.options.get('headers')
-        _task_headers = self._task.options.get('headers')
-        _execution_headers = self._execution.options.get('headers')
-        if _account_headers:
-            _headers.update(**_account_headers)
-        if _task_headers:
-            _headers.update(**_task_headers)
-        if _execution_headers:
-            _headers.update(**_execution_headers)
-        for _ in _keys:
-            _value = self._execution.options.get(
+        _ACCOUNT_HEADERS = self._account.options.get('headers')
+        _TASK_HEADERS = self._task.options.get('headers')
+        _EXECUTION_HEADERS = self._execution.options.get('headers')
+        if _ACCOUNT_HEADERS:
+            _headers.update(**_ACCOUNT_HEADERS)
+        if _TASK_HEADERS:
+            _headers.update(**_TASK_HEADERS)
+        if _EXECUTION_HEADERS:
+            _headers.update(**_EXECUTION_HEADERS)
+        for _ in _KEYS:
+            _VALUE = self._execution.options.get(
                 _.lower(), self._account.options.get(
                     _.lower(), self._task.options.get(
                         _.lower(), self._website.options.get(_.lower()),
                     ),
                 ),
             )
-            if _value:
-                _headers[_] = _value
+            if _VALUE:
+                _headers[_] = _VALUE
         if _headers:
             _kwargs.update(headers=_headers)
 

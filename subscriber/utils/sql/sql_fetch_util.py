@@ -4,8 +4,7 @@ from ...models import *
 
 class SqlFetchUtil(SqlUtil):
     def fetch_for(self, object_class, object_name: str, object_id: int, attr_names: list[str] = None):
-        if attr_names is None:
-            attr_names = []
+        _ATTR_NAMES = attr_names.copy() if attr_names is not None else []
 
         _data = self.res_to_dict(
             self.fetchone(f'''select * from {object_name} where id = {object_id}''')
@@ -15,11 +14,11 @@ class SqlFetchUtil(SqlUtil):
             print(f'''找不到 ID 为 `{object_id}` 的 `{object_name}`!''')
             return None
 
-        for _name in attr_names:
-            attr_obj = getattr(self, f'fetch_{_name}')(_data.get(f'{_name}_id'))
-            if not attr_obj:
+        for _name in _ATTR_NAMES:
+            _attr_obj = getattr(self, f'fetch_{_name}')(_data.get(f'{_name}_id'))
+            if not _attr_obj:
                 return None
-            _data[_name] = attr_obj
+            _data[_name] = _attr_obj
 
         return object_class(**_data)
 

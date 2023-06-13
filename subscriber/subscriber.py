@@ -53,29 +53,29 @@ class Subscriber:
         )
 
         if asyncio.iscoroutinefunction(_website_task.start):  # 异步执行.
-            _res: tuple[int, object] = asyncio.run(_website_task.start(*args, **kwargs))
+            _RES: tuple[int, object] = asyncio.run(_website_task.start(*args, **kwargs))
         else:  # 同步执行.
-            _res: tuple[int, object] = _website_task.start(*args, **kwargs)
+            _RES: tuple[int, object] = _website_task.start(*args, **kwargs)
 
-        self._sql.update_execution(_execution.id, result=_res)
+        self._sql.update_execution(_execution.id, result=_RES)
 
-        return _res
+        return _RES
 
     def info(self, execution_id: int) -> dict[str]:
-        _execution = self.get_execution(execution_id)
+        _EXECUTION = self.get_execution(execution_id)
         return {
-            'website': _execution.task.website.name,
-            'task': _execution.task.name,
-            'user': _execution.account.name,
-            'nickname': _execution.account.nickname,
+            'website': _EXECUTION.task.website.name,
+            'task': _EXECUTION.task.name,
+            'user': _EXECUTION.account.name,
+            'nickname': _EXECUTION.account.nickname,
             'last_run': {
-                'time': _execution.last_run.strftime('%Y-%m-%d %H:%M:%S')
-                if _execution.last_run is not None else None,
-                'result': 'success' if _execution.result[0] in _execution.task.codes.get('success', []) else
-                'ignored' if _execution.result[0] in _execution.task.codes.get('ignored', []) else
+                'time': _EXECUTION.last_run.strftime('%Y-%m-%d %H:%M:%S')
+                if _EXECUTION.last_run is not None else None,
+                'result': 'success' if _EXECUTION.result[0] in _EXECUTION.task.codes.get('success', []) else
+                'ignored' if _EXECUTION.result[0] in _EXECUTION.task.codes.get('ignored', []) else
                 'failure',
-                'code': _execution.result[0],
-                'data': _execution.result[1],
+                'code': _EXECUTION.result[0],
+                'data': _EXECUTION.result[1],
             },
         }
 
