@@ -26,4 +26,4 @@ if __name__ == '__main__':
 
     subscriber = Subscriber(**config)
     for execution_id in args.execution_id:
-        subscriber.start('websites', execution_id)
+        subscriber.start(execution_id)

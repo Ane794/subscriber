@@ -1,14 +1,18 @@
 from .request_util import RequestUtil, RequestAsyncUtil
+from ... import Subscriber
 from ...models import Execution
 
 
 class TaskRunner(RequestUtil):
-    def __init__(self, execution: Execution, log_kwargs=None, request_kwargs=None):
+    def __init__(self, execution: Execution, subscriber: Subscriber = None, log_kwargs=None, request_kwargs=None):
         """
         :param execution: 执行实例
         :param log_kwargs: `LogUtil` 的关键字参数
         :param request_kwargs: 发送请求所使用的关键字参数
         """
+        self._subscriber: Subscriber = subscriber
+        """ Subscriber 实例 """
+
         self._website = execution.task.website
         """ 网站实例 """
         self._account = execution.account

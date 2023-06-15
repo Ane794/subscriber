@@ -39,12 +39,14 @@ class Subscriber:
 
     def start(
             self,
-            websites_package,
             execution_id: int,
             *args,
+            websites_package: str = '',
             **kwargs,
     ) -> tuple[int, object]:
         _execution = self.get_execution(execution_id)
+        if not websites_package:
+            websites_package = self._conf.get('websites_package', 'websites')
 
         _website_task = self.init_website_task(websites_package, _execution)
         self._sql.update_execution(
@@ -90,6 +92,7 @@ class Subscriber:
 
         return _task_module.WebsiteTask(
             execution,
+            self,
             request_kwargs=self._conf.get('request'),
             log_kwargs=self._conf.get('log'),
         )

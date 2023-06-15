@@ -2,5 +2,7 @@ sql:
   engine: sqlite3
   database: subscriber.sqlite
 
+websites_module: websites
+
 log:
   log_dir: logs
