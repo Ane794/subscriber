@@ -94,7 +94,9 @@ class Execution(DbModel):
         """ 账号实例 """
         self.result: list[int, object] = [-1, None]
         """ 上次运行结果 """
-        self.last_run: datetime.datetime = None
-        """ 上次运行时间 """
+        self.last_start: datetime.datetime = None
+        """ 上次开始时间 """
+        self.last_end: datetime.datetime = None
+        """ 上次结束时间 """
 
         super().__init__(**kwargs)

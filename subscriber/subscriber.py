@@ -51,7 +51,7 @@ class Subscriber:
         _website_task = self.init_website_task(websites_package, _execution)
         self._sql.update_execution(
             _execution.id,
-            last_run=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            last_start=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
         )
 
         if asyncio.iscoroutinefunction(_website_task.start):  # 异步执行.
@@ -59,7 +59,11 @@ class Subscriber:
         else:  # 同步执行.
             _RES: tuple[int, object] = _website_task.start(*args, **kwargs)
 
-        self._sql.update_execution(_execution.id, result=_RES)
+        self._sql.update_execution(
+            _execution.id,
+            last_end=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            result=_RES,
+        )
 
         return _RES
 
@@ -71,8 +75,10 @@ class Subscriber:
             'user': _EXECUTION.account.name,
             'nickname': _EXECUTION.account.nickname,
             'last_run': {
-                'time': _EXECUTION.last_run.strftime('%Y-%m-%d %H:%M:%S')
-                if _EXECUTION.last_run is not None else None,
+                'start_time': _EXECUTION.last_start.strftime('%Y-%m-%d %H:%M:%S')
+                if _EXECUTION.last_start is not None else None,
+                'end_time': _EXECUTION.last_end.strftime('%Y-%m-%d %H:%M:%S')
+                if _EXECUTION.last_end is not None else None,
                 'result': 'success' if _EXECUTION.result[0] in _EXECUTION.task.codes.get('success', []) else
                 'ignored' if _EXECUTION.result[0] in _EXECUTION.task.codes.get('ignored', []) else
                 'failure',
