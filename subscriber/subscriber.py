@@ -75,10 +75,14 @@ class Subscriber:
             'user': _EXECUTION.account.name,
             'nickname': _EXECUTION.account.nickname,
             'last_run': {
-                'start_time': _EXECUTION.last_start.strftime('%Y-%m-%d %H:%M:%S')
-                if _EXECUTION.last_start is not None else None,
-                'end_time': _EXECUTION.last_end.strftime('%Y-%m-%d %H:%M:%S')
-                if _EXECUTION.last_end is not None else None,
+                'start_time': (
+                    _EXECUTION.last_start.strftime('%Y-%m-%d %H:%M:%S')
+                    if type(_EXECUTION.last_start) is datetime else _EXECUTION.last_start
+                ) if _EXECUTION.last_start is not None else None,
+                'end_time': (
+                    _EXECUTION.last_end.strftime('%Y-%m-%d %H:%M:%S')
+                    if type(_EXECUTION.last_end) is datetime else _EXECUTION.last_end
+                ) if _EXECUTION.last_start is not None else None,
                 'result': 'success' if _EXECUTION.result[0] in _EXECUTION.task.codes.get('success', []) else
                 'ignored' if _EXECUTION.result[0] in _EXECUTION.task.codes.get('ignored', []) else
                 'failure',
