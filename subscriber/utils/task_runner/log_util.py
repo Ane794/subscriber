@@ -26,10 +26,8 @@ class LogUtil:
         创建日志目录.
         :param dirs: 目录列表; 按从外层到内层的顺序依次列出
         """
-        for _ in range(len(dirs) - 1):
-            _path = '/'.join(dirs[:_ + 1])
-            if not os.path.exists(_path):
-                os.mkdir(_path)
+        _path = '/'.join(dirs)
+        os.makedirs(_path, exist_ok=True)
 
     def _refresh_logging_config(self):
         """ 刷新日志设置. """
