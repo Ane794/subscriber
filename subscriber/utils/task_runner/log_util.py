@@ -2,6 +2,7 @@ import logging
 import os
 
 import sys
+import traceback
 
 
 class LogUtil:
@@ -80,5 +81,5 @@ class LogUtil:
     def _err(self, msg):
         self._log(logging.ERROR, msg, file=sys.stderr)
 
-    def _exception(self, msg):
-        self._err(msg)
+    def _exception(self, exc):
+        self._err(''.join(traceback.format_exception(exc)))

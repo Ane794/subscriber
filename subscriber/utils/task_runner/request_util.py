@@ -45,9 +45,9 @@ class RequestUtil(LogUtil):
             _RESULT = self._run(fun, args, kwargs)
             self.failed = False
             return _RESULT
-        except Exception as E:
+        except BaseException as error:
             self.failed = True
-            self._err(E)
+            self._exception(error)
         finally:
             self._end()
 
@@ -124,10 +124,10 @@ class RequestAsyncUtil(RequestUtil):
             _RESULT = await self._run(fun, args, kwargs)
             self.failed = False
             return _RESULT
-        except Exception as E:
+        except BaseException as error:
             self.failed = True
-            self._err(E)
-            return 1, E
+            self._exception(error)
+            return 1, error
         finally:
             await self._end()
 

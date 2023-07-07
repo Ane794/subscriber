@@ -1,6 +1,7 @@
 import asyncio
 import datetime
 import importlib
+import traceback
 
 from .utils.sql import SqlFetchUtil
 
@@ -59,11 +60,14 @@ class Subscriber:
         else:  # 同步执行.
             _RES: tuple[int, object] = _website_task.start(*args, **kwargs)
 
-        self._sql.update_execution(
-            _execution.id,
-            last_end=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            result=_RES,
-        )
+        try:
+            self._sql.update_execution(
+                _execution.id,
+                last_end=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                result=_RES,
+            )
+        except BaseException as error:
+            traceback.print_exception(error)
 
         return _RES
 
