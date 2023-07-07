@@ -1,29 +1,35 @@
 import argparse
+import asyncio
 
 from ruamel import yaml
 
 from subscriber import Subscriber
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(prog='Subscriber')
-    parser.add_argument(
+
+async def main():
+    _parser = argparse.ArgumentParser(prog='Subscriber')
+    _parser.add_argument(
         'execution_id',
         action='extend',
         type=int,
         nargs='+',
     )
-    parser.add_argument(
+    _parser.add_argument(
         '-c', '--config',
         type=argparse.FileType('r', encoding='UTF-8'),
         default=open('config.yml', 'r', encoding='UTF-8'),
         help='specify a config file',
     )
-    args = parser.parse_args()
+    _args = _parser.parse_args()
 
     # 读取配置文件.
-    config: dict = yaml.safe_load(args.config)
-    args.config.close()
+    _config: dict = yaml.safe_load(_args.config)
+    _args.config.close()
 
-    subscriber = Subscriber(**config)
-    for execution_id in args.execution_id:
-        subscriber.start(execution_id)
+    _subscriber = Subscriber(**_config)
+    for _execution_id in _args.execution_id:
+        await _subscriber.start(_execution_id)
+
+
+if __name__ == '__main__':
+    asyncio.run(main())

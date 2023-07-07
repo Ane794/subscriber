@@ -38,7 +38,7 @@ class Subscriber:
         _sql_conf = self._conf.get('sql', {})
         self._sql = SqlFetchUtil(**_sql_conf)
 
-    def start(
+    async def start(
             self,
             execution_id: int,
             *args,
@@ -56,7 +56,7 @@ class Subscriber:
         )
 
         if asyncio.iscoroutinefunction(_website_task.start):  # 异步执行.
-            _RES: tuple[int, object] = asyncio.run(_website_task.start(*args, **kwargs))
+            _RES: tuple[int, object] = await _website_task.start(*args, **kwargs)
         else:  # 同步执行.
             _RES: tuple[int, object] = _website_task.start(*args, **kwargs)
 
